@@ -20,8 +20,14 @@ The following steps need to be done in order to configure the services:
 4. Insert your domain name in nginx's reverse proxy configuration. 
 5. Configure ddclient, seafile, gitea, radicale and borgmatic
 
+##### Seafile
+- Within the seafile docker container edit
+	- `/shared/seafile/conf/seafile.conf` and set `host = 0.0.0.0` in the `[fileserver]` section.
+	- `/shared/seafile/conf/gunicorn.conf.py` and set `bind = "0.0.0.0:8000`.
+	- `/shared/seafile/conf/seahub_settings.py` and adjust `SERVICE_URL` and `FILE_SERVER_ROOT` to match your subdomain.
+
 ##### borgmatic
-- Configure
+- Configuration
 	- Add repository URL
 	- Add encryption passcommand or passphrase
 	- Adjust crontab if required
