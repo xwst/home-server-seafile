@@ -55,7 +55,8 @@ ssh-keygen -N "" -t ed25519 -f $BASE_DIR/borgmatic/.ssh/id_ed25519
 
 
 echo -n "Starting database server to perform initial setup." | ww
-docker-compose up -d mariadb
+# Borgmatic is started to adjust permissions of the gitea volumes
+docker-compose up -d mariadb borgmatic
 while true; do
 	sleep 2
 	echo -n "."
@@ -64,18 +65,22 @@ done
 sleep 2
 echo ""
 
-# Setup databases
-# SQL_SCRIPT=$(sed "s/%DB_GITEA_PASSWORD%/$GITEA_DB_PASSWORD/" setup_db.sql)
-# docker exec -it mariadb /bin/bash -c "echo \"$SQL_SCRIPT\" | mysql -u root -p\"$DB_ROOT_PW\""
+docker exec -it borgmatic chown -R $uid:$gid /source/gitea
 
 echo "Starting remaining services." | ww
 docker-compose up -d
 docker cp seafile.subdomain.conf swag:/config/nginx/proxy-confs/
+docker cp swag:/config/nginx/proxy-confs/gitea.subfolder.conf.sample \
+	  ./gitea.subfolder.conf.sample
+docker cp ./gitea.subfolder.conf.sample \
+	  swag:/config/nginx/proxy-confs/gitea.subfolder.conf
+rm -f ./gitea.subfolder.conf.sample
 
 echo "Creating default borgmatic configuration."
 docker exec borgmatic \
 	bash -c "cd && generate-borgmatic-config -d /etc/borgmatic.d/config.yaml.template"
 cp -i borgmatic_config.yaml $BASE_DIR/borgmatic/borgmatic.d/config.yaml
+
 
 echo "Configuration complete, stopping server." | ww
 docker-compose down

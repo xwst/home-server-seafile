@@ -10,30 +10,37 @@ Docker related files for service deployment
 - only borgmatic volumes are bind-mounted to configure borgmatic and back up the repository key file
 
 ## Setup
-The following steps need to be done in order to configure the services:
-### These steps can be automated using the `install.sh`-script
-1. Create a dedicated linux user whos UID will be used to run the services within the containers.
-2. Specify passwords and timezone in `.env`-file.
-3. Create database and database users for gitea
+There is an install script to perform most of the setup steps automatically.
+If you do not trust the script, just read it and perform the instructions on your own.
+Parts of the service configuration need to be done manually.
+See the subsections below.
+You can either create a temporary container or use the borgmatic container to access the files in named volumes or use `docker cp` to copy the files to your local directory and back to the named volume.
 
-### These steps need to be done manually
-4. Insert your domain name in nginx's reverse proxy configuration. 
-5. Configure ddclient, seafile, gitea, radicale and borgmatic
+#### ddclient
+[ddclient](https://ddclient.net/) configuration depends on the used service. Please consult the official manual.
 
-##### Seafile
+#### Seafile
 - Within the seafile docker container edit
 	- `/shared/seafile/conf/seafile.conf` and set `host = 0.0.0.0` in the `[fileserver]` section.
 	- `/shared/seafile/conf/gunicorn.conf.py` and set `bind = "0.0.0.0:8000`.
 	- `/shared/seafile/conf/seahub_settings.py` and adjust `SERVICE_URL` and `FILE_SERVER_ROOT` to match your subdomain.
 
-##### borgmatic
+#### borgmatic
 - Configuration
 	- Add repository URL
 	- Add encryption passcommand or passphrase
 	- Adjust crontab if required
-- Add SSH public key to authorized\_keys
+- Add SSH public key to authorized\_keys on remote backup server
 - Create known\_hosts-file (or run a SSH command interactively to autogenerate one)
 - Initialize repository if not already done
+- Make a backup of everything you need to restore a borgmatic archive as described in section 'Backup and Restore'.
+
+#### gitea
+- Modify the file `/etc/gitea/app.ini` within the container:
+	- Change `ROOT_URL` to `https://$domain/gitea/`, where `$domain` is the domain under which the server is accessible.
+	- Change `DOMAIN` to `$domain`.
+	- You may disable SSH, as the current setup does not provide access to gitea's SSH server.
+- Visit `https://$domain/gitea/` and finish the installation.
 
 ## Backup and Restore
 todo

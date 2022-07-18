@@ -30,9 +30,9 @@ services:
       - PGID=${PGID?PGID is not known!}
       - TZ=${TIMEZONE?No timezone specified!}
       - MYSQL_ROOT_PASSWORD=${DB_ROOT_PW?Database root password is missing!}
-        # - MYSQL_DATABASE=seafile
-        # - MYSQL_USER=seafile_user
-        # - MYSQL_PASSWORD=${DB_SEAFILE_PW?Database password for seafile user is missing!}
+      - MYSQL_DATABASE=gitea
+      - MYSQL_USER=gitea_user
+      - MYSQL_PASSWORD=${DB_GITEA_PASSWORD?gitea database password not specified!}
     volumes:
       - ${BASE_DIR}/mariadb-data:/config
       #- mariadb-data:/config
@@ -43,8 +43,12 @@ services:
     environment:
       - TZ=${TIMEZONE?No timezone specified!}
     volumes:
+      # Volumes to back up:
       - ${BASE_DIR}/swag-data:/source/swag-data:ro
       #- swag-data:/source/swag-data:ro
+      - ${BASE_DIR?Base directory not specified!}/gitea/data:/source/gitea/data
+      - ${BASE_DIR?Base directory not specified!}/gitea/config:/source/gitea/config
+      # Volumes containing borgmatic data
       - ${BASE_DIR?Base directory not specified!}/borgmatic/borgmatic.d:/etc/borgmatic.d/
       - ${BASE_DIR}/borgmatic/.ssh:/root/.ssh
       - ${BASE_DIR}/borgmatic/.config/borg:/root/.config/borg
@@ -69,6 +73,24 @@ services:
     depends_on:
       - mariadb
       - memcached
+  gitea:
+    image: gitea/gitea:latest-rootless
+    container_name: gitea
+    user: ${PUID?PUID is not known!}
+    volumes:
+      - ${BASE_DIR?Base directory not specified!}/gitea/data:/var/lib/gitea
+      - ${BASE_DIR?Base directory not specified!}/gitea/config:/etc/gitea
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - mariadb
+    environment:
+      - GITEA__database__DB_TYPE=mysql
+      - GITEA__database__HOST=mariadb:3306
+      - GITEA__database__NAME=gitea
+      - GITEA__database__USER=gitea_user
+      - GITEA__database__PASSWD=${DB_GITEA_PASSWORD?gitea database password not specified!}
+    restart: unless-stopped
 
 #volumes:
 #  swag-data:
