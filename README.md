@@ -26,7 +26,16 @@ You can either create a temporary container or use the borgmatic container to ac
 - Within the seafile docker container edit
 	- `/shared/seafile/conf/seafile.conf` and set `host = 0.0.0.0` in the `[fileserver]` section.
 	- `/shared/seafile/conf/gunicorn.conf.py` and set `bind = "0.0.0.0:8000`.
-	- `/shared/seafile/conf/seahub_settings.py` and set `FILE_SERVER_ROOT = https://$domain/seafhttp, `SERVICE_URL = https://$domain/seafile` and `SITE_ROOT = '/seafile/'`, where `$domain` needs to be replaced with you domain.
+	- `/shared/seafile/conf/seahub_settings.py`, set the following variables:
+	```
+SERVE_STATIC = True
+MEDIA_URL = '/seafmedia/'
+COMPRESS_URL = MEDIA_URL
+STATIC_URL = MEDIA_URL + 'assets/'
+SITE_ROOT = "/seafile/"
+LOGIN_URL = SITE_ROOT + 'accounts/login/'
+	```
+	as well as `SERVICE_URL = 'https://$domain/seafile'` and `FILE_SERVER_ROOT = "https://$domain/seafhttp"`, where you have to replace `$domain` with your domain.
 
 ### borgmatic
 - Configuration
@@ -63,7 +72,7 @@ If you want to restore an older archive on the same host with everything set up,
 ```
 docker-compose up -d borgmatic
 docker cp borg.tar borgmatic:/tmp
-docker exec borgmatic bash -c "tar -xf /tmp/borg.tar"
+docker exec borgmatic tar -xf /tmp/borg.tar
 ```
 3. Restore an archive from the borg repository and stop the borgmatic container afterwards. Check the [borgmatic](https://torsion.org/borgmatic/docs/how-to/extract-a-backup/) manual for details, but a possible command might be:
 ```
