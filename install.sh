@@ -43,11 +43,8 @@ cat /etc/timezone >> .env
 chmod 600 .env
 DB_ROOT_PW=$(pw 20)
 DB_GITEA_PASSWORD=$(pw 20)
-BORG_PASSPHRASE=$(pw 25)
 echo "DB_ROOT_PW=$DB_ROOT_PW" >> .env
-echo "DB_SEAFILE_PW=$(pw 20)" >> .env
 echo "DB_GITEA_PASSWORD=$DB_GITEA_PASSWORD" >> .env
-echo "BORG_PASSPHRASE=$BORG_PASSPHRASE" >> .env
 
 echo "Creating ssh-key without password for borgmatic."
 mkdir -p $BASE_DIR/borgmatic/.ssh \
@@ -57,27 +54,30 @@ mkdir -p $BASE_DIR/borgmatic/.ssh \
 ssh-keygen -N "" -t ed25519 -f $BASE_DIR/borgmatic/.ssh/id_ed25519
 
 
-echo "Starting server to configure database server." | ww
-docker-compose up -d
-
-echo -n "Waiting for mariadb to be ready."
+echo -n "Starting database server to perform initial setup." | ww
+docker-compose up -d mariadb
 while true; do
 	sleep 2
 	echo -n "."
 	(docker exec -it mariadb mysql -u root -e "SELECT version();" -p"$DB_ROOT_PW") 2>/dev/null > /dev/null && break
 done
+sleep 2
 echo ""
 
 # Setup databases
-SQL_SCRIPT=$(sed "s/%DB_GITEA_PASSWORD%/$GITEA_DB_PASSWORD/" setup_db.sql)
-docker exec -it mariadb /bin/bash -c "echo \"$SQL_SCRIPT\" | mysql -u root -p\"$DB_ROOT_PW\""
+# SQL_SCRIPT=$(sed "s/%DB_GITEA_PASSWORD%/$GITEA_DB_PASSWORD/" setup_db.sql)
+# docker exec -it mariadb /bin/bash -c "echo \"$SQL_SCRIPT\" | mysql -u root -p\"$DB_ROOT_PW\""
+
+echo "Starting remaining services." | ww
+docker-compose up -d
+docker cp seafile.subdomain.conf swag:/config/nginx/proxy-confs/
 
 echo "Creating default borgmatic configuration."
 docker exec borgmatic \
 	bash -c "cd && generate-borgmatic-config -d /etc/borgmatic.d/config.yaml.template"
-cp borgmatic_config.yaml $BASE_DIR/borgmatic/borgmatic.d/config.yaml
-exit
+cp -i borgmatic_config.yaml $BASE_DIR/borgmatic/borgmatic.d/config.yaml
 
 echo "Configuration complete, stopping server." | ww
 docker-compose down
+
 echo "Various passwords have been generated automatically. You can find them in the './.env'-file. You may now start the services using docker-compose. Do not forget to configure the ddclient by editing $BASE_DIR/ddclient/ddclient.conf." | ww
