@@ -65,7 +65,9 @@ done
 sleep 2
 echo ""
 
-docker exec -it borgmatic chown -R $uid:$gid /source/gitea
+docker exec borgmatic mkdir -p /source/radicale/data/collections
+docker exec borgmatic chown -R $uid:$gid /source/gitea /source/radicale
+docker cp borgmatic_crontab.txt borgmatic:/etc/borgmatic.d/crontab.txt
 
 echo "Starting remaining services." | ww
 docker-compose up -d
@@ -75,7 +77,7 @@ docker cp swag:/config/nginx/proxy-confs/gitea.subfolder.conf.sample \
 docker cp ./gitea.subfolder.conf.sample \
 	  swag:/config/nginx/proxy-confs/gitea.subfolder.conf
 docker cp ./radicale.subfolder.conf swag:/config/nginx/proxy-confs/
-curl -o radicale.conf https://raw.githubusercontent.com/tomsquest/docker-radicale/master/config
+curl -s -o radicale.conf https://raw.githubusercontent.com/tomsquest/docker-radicale/master/config
 docker cp radicale.conf radicale:/config/config
 rm -f ./gitea.subfolder.conf.sample ./radicale.conf
 

@@ -127,6 +127,7 @@ services:
     environment:
       - UID=${PUID?PUID is not known!}
       - GID=${PGID?PGID is not known!}
+      - TAKE_FILE_OWNERSHIP=false
 
 volumes:
   ddclient-data:
