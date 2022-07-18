@@ -44,10 +44,13 @@ services:
       - TZ=${TIMEZONE?No timezone specified!}
     volumes:
       # Volumes to back up:
-      - ${BASE_DIR}/swag-data:/source/swag-data:ro
-      #- swag-data:/source/swag-data:ro
-      - ${BASE_DIR?Base directory not specified!}/gitea/data:/source/gitea/data
-      - ${BASE_DIR?Base directory not specified!}/gitea/config:/source/gitea/config
+      #- swag-data:/source/swag
+      #- mariadb-data:/source/mariadb
+      #- seafile-data:/source/seafile
+      #- gitea-data:/source/gitea/data
+      #- gitea-config:/source/gitea/config
+      #- radicale-data:/source/radicale/data
+      #- radicale-config:/source/radicale/config
       # Volumes containing borgmatic data
       - ${BASE_DIR?Base directory not specified!}/borgmatic/borgmatic.d:/etc/borgmatic.d/
       - ${BASE_DIR}/borgmatic/.ssh:/root/.ssh
@@ -123,3 +126,15 @@ services:
 #    external: false
 #  mariadb-data:
 #    external: false
+#  seafile-data:
+#    external: false
+#  gitea-data:
+#    external: false
+#  gitea-config:
+#    external: false
+#  radicale-data:
+#    external: false
+#  radicale-config:
+#    external: false
+      # Volumes containing borgmatic data
+      - ${BASE_DIR?Base directory not specified!}/borgmatic/borgmatic.d:/etc/borgmatic.d/
