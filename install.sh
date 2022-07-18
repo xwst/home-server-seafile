@@ -8,20 +8,14 @@ function pw() {
     head -c $1 /dev/urandom | base64 -w 0 | sed 's#/##g' | head -c $1
 }
 
-echo -n "Please enter the base directory in which all borgmatic bind-mounts will be placed: ($(pwd)) " | ww
-read BASE_DIR
-if [ -z $BASE_DIR ]; then
-    BASE_DIR=$(pwd)
-fi
-mkdir -p $BASE_DIR
 
-echo "The linuxserver.io-images require a user that will be the owner of the bind-mounted data within the docker containers. If you give a user name that does not exist, a new one will be created." | ww
+echo "The linuxserver.io-images require a user that will be the owner of the persistent data within the docker containers. If you give a user name that does not exist, a new one will be created." | ww
 echo -n "User name: "
 read user;
 
 if [ ! id "$user" &>/dev/null ]; then
     echo "User does not exist. Creating a new one."
-    useradd -d $BASE_DIR \
+    useradd -d /opt/$user \
             -c "docker user" \
             --no-create-home \
             --system \
@@ -37,7 +31,6 @@ echo -n "Domain: "
 read domain;
 
 echo "Creating environment file for docker-compose. Timezone is copied from host!" | ww
-echo "BASE_DIR=$BASE_DIR" > .env
 echo -en "PUID=$uid\nPGID=$gid\nMYDOMAIN=$domain\nTIMEZONE=" >> .env
 cat /etc/timezone >> .env
 chmod 600 .env
@@ -46,12 +39,6 @@ DB_GITEA_PASSWORD=$(pw 20)
 echo "DB_ROOT_PW=$DB_ROOT_PW" >> .env
 echo "DB_GITEA_PASSWORD=$DB_GITEA_PASSWORD" >> .env
 
-echo "Creating ssh-key without password for borgmatic."
-mkdir -p $BASE_DIR/borgmatic/.ssh \
-         $BASE_DIR/borgmatic/.cache/borg \
-         $BASE_DIR/borgmatic/.config/borg \
-         $BASE_DIR/borgmatic/borgmatic.d 
-ssh-keygen -N "" -t ed25519 -f $BASE_DIR/borgmatic/.ssh/id_ed25519
 
 
 echo -n "Starting database and web server to perform initial setup." | ww
@@ -68,6 +55,8 @@ echo ""
 docker exec borgmatic mkdir -p /source/radicale/data/collections
 docker exec borgmatic chown -R $uid:$gid /source/radicale
 docker cp borgmatic_crontab.txt borgmatic:/etc/borgmatic.d/crontab.txt
+echo "Creating ssh-key without password for borgmatic."
+docker exec borgmatic ssh-keygen -N "" -t ed25519 -f /root/.ssh/id_ed25519
 
 echo "Starting remaining services." | ww
 docker-compose up -d
@@ -85,9 +74,9 @@ rm -f ./gitea.subfolder.conf.sample ./radicale.conf
 echo "Creating default borgmatic configuration."
 docker exec borgmatic \
 	bash -c "cd && generate-borgmatic-config -d /etc/borgmatic.d/config.yaml.template"
-cp -i borgmatic_config.yaml $BASE_DIR/borgmatic/borgmatic.d/config.yaml
+docker cp borgmatic_config.yaml borgmatic:/etc/borgmatic.d/config.yaml
 
 echo "Configuration complete, stopping server." | ww
 docker-compose down
 
-echo "Various passwords have been generated automatically. You can find them in the './.env'-file. You may now start the services using docker-compose. Do not forget to configure the ddclient by editing $BASE_DIR/ddclient/ddclient.conf." | ww
+echo "Various passwords have been generated automatically. You can find them in the './.env'-file. You may now start the services using docker-compose. Do not forget to perform the manual configuration steps." | ww

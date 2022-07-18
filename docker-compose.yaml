@@ -60,10 +60,10 @@ services:
       - radicale-data:/source/radicale/data
       - radicale-config:/source/radicale/config
       # Volumes containing borgmatic data
-      - ${BASE_DIR?Base directory not specified!}/borgmatic/borgmatic.d:/etc/borgmatic.d/
-      - ${BASE_DIR}/borgmatic/.ssh:/root/.ssh
-      - ${BASE_DIR}/borgmatic/.config/borg:/root/.config/borg
-      - ${BASE_DIR}/borgmatic/.cache/borg:/root/.cache/borg
+      - borgmatic-config:/etc/borgmatic.d/
+      - borgmatic-ssh:/root/.ssh
+      - borgmatic-borg-config:/root/.config/borg
+      - borgmatic-borg-cache:/root/.cache/borg
   memcached:
     image: memcached:1.6
     container_name: memcached
@@ -145,4 +145,12 @@ volumes:
   radicale-data:
     external: false
   radicale-config:
+    external: false
+  borgmatic-config:
+    external: false
+  borgmatic-ssh:
+    external: false
+  borgmatic-borg-config:
+    external: false
+  borgmatic-borg-cache:
     external: false
