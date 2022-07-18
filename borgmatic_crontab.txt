@@ -1,1 +1,7 @@
-0 1 * * * PATH=$PATH:/usr/bin /usr/bin/borgmatic --stats -v 0 2>&1
+# Set MAILTO, to send crontab output to mail (Instead of docker logs)
+# Comma separate multiple addresses, do not use spaces or quotes
+
+# Consider using a cronjob on the host to properly stop other docker
+# services. Is you still want to use crond inside the borgmatic
+# container, a cronjob rule might look like this:
+# 0 1 * * * /scripts/run.sh 2>&1

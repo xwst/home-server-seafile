@@ -45,7 +45,7 @@ services:
       - mariadb-data:/config
     restart: unless-stopped
   borgmatic:
-    image: b3vis/borgmatic
+    image: b3vis/borgmatic:latest-msmtp
     container_name: borgmatic
     environment:
       - TZ=${TIMEZONE?No timezone specified!}

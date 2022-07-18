@@ -31,7 +31,7 @@ echo -n "Domain: "
 read domain;
 
 echo "Creating environment file for docker-compose. Timezone is copied from host!" | ww
-echo -en "PUID=$uid\nPGID=$gid\nMYDOMAIN=$domain\nTIMEZONE=" >> .env
+echo -en "PUID=$uid\nPGID=$gid\nMYDOMAIN=$domain\nTIMEZONE=" > .env
 cat /etc/timezone >> .env
 chmod 600 .env
 DB_ROOT_PW=$(pw 20)
@@ -55,6 +55,7 @@ echo ""
 docker exec borgmatic mkdir -p /source/radicale/data/collections
 docker exec borgmatic chown -R $uid:$gid /source/radicale
 docker cp borgmatic_crontab.txt borgmatic:/etc/borgmatic.d/crontab.txt
+docker cp msmtp.env.template borgmatic:/etc/borgmatic.d/msmtp.env.template
 echo "Creating ssh-key without password for borgmatic."
 docker exec borgmatic ssh-keygen -N "" -t ed25519 -f /root/.ssh/id_ed25519
 

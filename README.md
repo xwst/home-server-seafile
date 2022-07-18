@@ -37,10 +37,11 @@ You can either create a temporary container or use the borgmatic container to ac
 ```
 
 ### borgmatic
-- Configuration
+- Configuration (`/etc/borgmatic.d/config.yaml` within the container)
 	- Add repository URL
 	- Add encryption passcommand or passphrase
 	- Adjust crontab if required
+- Provide mail credentials in `/etc/borgmatic.d/msmtp.env` (see template file for details)
 - Add SSH public key to authorized\_keys on remote backup server
 - Create known\_hosts-file (or run a SSH command interactively to autogenerate one)
 - Initialize repository if not already done
@@ -89,6 +90,6 @@ cd /opt/docker/home-server-seafile  # Change to your base directory
 docker exec seafile /scripts/gc.sh
 docker-compose down
 docker-compose up -d borgmatic
-docker exec borgmatic borgmatic
+docker exec borgmatic bash -c "/scripts/run.sh 2>&1"
 docker-compose up -d
 ```
