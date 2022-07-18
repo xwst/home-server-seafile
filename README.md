@@ -9,6 +9,9 @@ Docker related files for service deployment
 - data sharing between containers using named volumes instead of bind mounts
 - only borgmatic volumes are bind-mounted to configure borgmatic and back up the repository key file
 
+## Anti-Features
+- gitea container runs its service using `UID=1000`, which is different from the `UID` used by the linuxserver.io-containers. As long as you stick to named volumes this is not an issue, but be careful if you bind mount the gitea-data volume, as you will give a host user access to all repositories.
+
 ## Setup
 There is an install script to perform most of the setup steps automatically.
 If you do not trust the script, just read it and perform the instructions on your own.
@@ -38,7 +41,6 @@ You can either create a temporary container or use the borgmatic container to ac
 #### gitea
 - Modify the file `/etc/gitea/app.ini` within the container:
 	- Change `ROOT_URL` to `https://$domain/gitea/`, where `$domain` is the domain under which the server is accessible.
-	- Change `DOMAIN` to `$domain`.
 	- You may disable SSH, as the current setup does not provide access to gitea's SSH server.
 - Visit `https://$domain/gitea/` and finish the installation.
 

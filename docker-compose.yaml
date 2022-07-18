@@ -90,7 +90,6 @@ services:
   gitea:
     image: gitea/gitea:latest-rootless
     container_name: gitea
-    user: ${PUID?PUID is not known!}
     volumes:
       - ${BASE_DIR?Base directory not specified!}/gitea/data:/var/lib/gitea
       - ${BASE_DIR?Base directory not specified!}/gitea/config:/etc/gitea
@@ -149,5 +148,3 @@ services:
 #    external: false
 #  radicale-config:
 #    external: false
-      # Volumes containing borgmatic data
-      - ${BASE_DIR?Base directory not specified!}/borgmatic/borgmatic.d:/etc/borgmatic.d/

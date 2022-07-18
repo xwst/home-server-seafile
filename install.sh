@@ -8,7 +8,7 @@ function pw() {
     head -c $1 /dev/urandom | base64 -w 0 | sed 's#/##g' | head -c $1
 }
 
-echo -n "Please enter the base directory in which all borgmatic bind-mounts will be placed: ($(pwd))" | ww
+echo -n "Please enter the base directory in which all borgmatic bind-mounts will be placed: ($(pwd)) " | ww
 read BASE_DIR
 if [ -z $BASE_DIR ]; then
     BASE_DIR=$(pwd)
@@ -54,9 +54,9 @@ mkdir -p $BASE_DIR/borgmatic/.ssh \
 ssh-keygen -N "" -t ed25519 -f $BASE_DIR/borgmatic/.ssh/id_ed25519
 
 
-echo -n "Starting database server to perform initial setup." | ww
+echo -n "Starting database and web server to perform initial setup." | ww
 # Borgmatic is started to adjust permissions of the gitea volumes
-docker-compose up -d mariadb borgmatic
+docker-compose up -d swag mariadb borgmatic
 while true; do
 	sleep 2
 	echo -n "."
@@ -84,7 +84,6 @@ echo "Creating default borgmatic configuration."
 docker exec borgmatic \
 	bash -c "cd && generate-borgmatic-config -d /etc/borgmatic.d/config.yaml.template"
 cp -i borgmatic_config.yaml $BASE_DIR/borgmatic/borgmatic.d/config.yaml
-
 
 echo "Configuration complete, stopping server." | ww
 docker-compose down
