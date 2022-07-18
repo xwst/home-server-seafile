@@ -23,7 +23,7 @@ services:
         #- SUBDOMAINS=
         # - EXTRA_DOMAINS=
       - VALIDATION=http
-      - STAGING=true
+      - STAGING=false
     volumes:
       - swag-data:/config
     ports:
