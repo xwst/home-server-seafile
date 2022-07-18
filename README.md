@@ -10,7 +10,7 @@ Docker related files for service deployment
 - only borgmatic volumes are bind-mounted to configure borgmatic and back up the repository key file
 
 ## Anti-Features
-- gitea container runs its service using `UID=1000`, which is different from the `UID` used by the linuxserver.io-containers. As long as you stick to named volumes this is not an issue, but be careful if you bind mount the gitea-data volume, as you will give a host user access to all repositories.
+- gitea container runs its service using `UID=1000`, which is different from the `UID` used by the linuxserver.io-containers. As long as you stick to named volumes this is not an issue, but be careful if you bind mount the gitea-data volume, as you might give a host user access to all repositories.
 
 ## Setup
 There is an install script to perform most of the setup steps automatically.
@@ -71,3 +71,16 @@ docker exec borgmatic borgmatic extract --archive ARCHIVE\_NAME
 docker-compose down
 ```
 4. Start all services using `docker-compoes up -d`.
+
+## Cron Strategy
+The borgmatic container is configured to schedule backups depending on the cron-file within the container. In order to stop the other services before executing borgmatic, one needs to bind mount docker sockets into the borgmatic container and configure [hooks](https://torsion.org/borgmatic/docs/how-to/add-preparation-and-cleanup-steps-to-backups/) to stop and restart the other services. However, this is considered a security risk.
+
+Another option is to schedule backups using crond on the host. A simple cron-file might look like this:
+```
+cd /opt/docker/home-server-seafile  # Change to your base directory
+docker exec seafile /scripts/gc.sh
+docker-compose down
+docker-compose up -d borgmatic
+docker exec borgmatic borgmatic
+docker-compose up -d
+```
