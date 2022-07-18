@@ -26,16 +26,15 @@ You can either create a temporary container or use the borgmatic container to ac
 - Within the seafile docker container edit
 	- `/shared/seafile/conf/seafile.conf` and set `host = 0.0.0.0` in the `[fileserver]` section.
 	- `/shared/seafile/conf/gunicorn.conf.py` and set `bind = "0.0.0.0:8000`.
-	- `/shared/seafile/conf/seahub_settings.py`, set the following variables:
-	```
-SERVE_STATIC = True
-MEDIA_URL = '/seafmedia/'
-COMPRESS_URL = MEDIA_URL
-STATIC_URL = MEDIA_URL + 'assets/'
-SITE_ROOT = "/seafile/"
-LOGIN_URL = SITE_ROOT + 'accounts/login/'
-	```
-	as well as `SERVICE_URL = 'https://$domain/seafile'` and `FILE_SERVER_ROOT = "https://$domain/seafhttp"`, where you have to replace `$domain` with your domain.
+	- `/shared/seafile/conf/seahub_settings.py`, set the variables `SERVICE_URL = 'https://$domain/seafile'` and `FILE_SERVER_ROOT = 'https://$domain/seafhttp'`, where you have to replace `$domain` with your domain, as well as
+```
+        SERVE_STATIC = True
+        MEDIA_URL = '/seafmedia/'
+        COMPRESS_URL = MEDIA_URL
+        STATIC_URL = MEDIA_URL + 'assets/'
+        SITE_ROOT = '/seafile/'
+        LOGIN_URL = SITE_ROOT + 'accounts/login/'
+```
 
 ### borgmatic
 - Configuration
