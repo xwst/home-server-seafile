@@ -60,7 +60,7 @@ docker exec borgmatic ssh-keygen -N "" -t ed25519 -f /root/.ssh/id_ed25519
 
 echo "Starting remaining services." | ww
 docker-compose up -d
-docker cp seafile.subdomain.conf swag:/config/nginx/proxy-confs/
+docker cp seafile.subfolder.conf swag:/config/nginx/proxy-confs/
 docker cp swag:/config/nginx/proxy-confs/gitea.subfolder.conf.sample \
 	  ./gitea.subfolder.conf.sample
 docker cp ./gitea.subfolder.conf.sample \

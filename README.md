@@ -26,7 +26,7 @@ You can either create a temporary container or use the borgmatic container to ac
 - Within the seafile docker container edit
 	- `/shared/seafile/conf/seafile.conf` and set `host = 0.0.0.0` in the `[fileserver]` section.
 	- `/shared/seafile/conf/gunicorn.conf.py` and set `bind = "0.0.0.0:8000`.
-	- `/shared/seafile/conf/seahub_settings.py` and adjust `SERVICE_URL` and `FILE_SERVER_ROOT` to match your subdomain.
+	- `/shared/seafile/conf/seahub_settings.py` and set `FILE_SERVER_ROOT = https://$domain/seafhttp, `SERVICE_URL = https://$domain/seafile` and `SITE_ROOT = '/seafile/'`, where `$domain` needs to be replaced with you domain.
 
 ### borgmatic
 - Configuration

@@ -20,7 +20,7 @@ services:
       - PGID=${PGID?PGID is not known!}
       - TZ=${TIMEZONE?No timezone specified!}
       - URL=${MYDOMAIN?No domain specified!}
-      - SUBDOMAINS=seafile,
+        #- SUBDOMAINS=
         # - EXTRA_DOMAINS=
       - VALIDATION=http
       - STAGING=true
