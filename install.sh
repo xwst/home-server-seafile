@@ -13,7 +13,7 @@ echo "The linuxserver.io-images require a user that will be the owner of the per
 echo -n "User name: "
 read user;
 
-if [ ! id "$user" &>/dev/null ]; then
+if ! id "$user" &>/dev/null; then
     echo "User does not exist. Creating a new one."
     useradd -d /opt/$user \
             -c "docker user" \
