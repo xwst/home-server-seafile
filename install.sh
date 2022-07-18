@@ -66,7 +66,7 @@ sleep 2
 echo ""
 
 docker exec borgmatic mkdir -p /source/radicale/data/collections
-docker exec borgmatic chown -R $uid:$gid /source/gitea /source/radicale
+docker exec borgmatic chown -R $uid:$gid /source/radicale
 docker cp borgmatic_crontab.txt borgmatic:/etc/borgmatic.d/crontab.txt
 
 echo "Starting remaining services." | ww
