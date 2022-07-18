@@ -9,8 +9,7 @@ services:
       - PGID=${PGID?PGID is not known!}
       - TZ=${TIMEZONE?No timezone specified!}
     volumes:
-      - ${BASE_DIR?Base directory not specified!}/ddclient:/config
-      #- ddclient-data:/config
+      - ddclient-data:/config
   swag:
     image: ghcr.io/linuxserver/swag
     container_name: swag
@@ -26,8 +25,7 @@ services:
       - VALIDATION=http
       - STAGING=true
     volumes:
-      - ${BASE_DIR}/swag-data:/config
-      #- swag-data:/config
+      - swag-data:/config
     ports:
       - 443:443
       - 80:80
@@ -44,8 +42,7 @@ services:
       - MYSQL_USER=gitea_user
       - MYSQL_PASSWORD=${DB_GITEA_PASSWORD?gitea database password not specified!}
     volumes:
-      - ${BASE_DIR}/mariadb-data:/config
-      #- mariadb-data:/config
+      - mariadb-data:/config
     restart: unless-stopped
   borgmatic:
     image: b3vis/borgmatic
@@ -54,14 +51,14 @@ services:
       - TZ=${TIMEZONE?No timezone specified!}
     volumes:
       # Volumes to back up:
-      #- ddclient-data:/source/ddclient
-      #- swag-data:/source/swag
-      #- mariadb-data:/source/mariadb
-      #- seafile-data:/source/seafile
-      #- gitea-data:/source/gitea/data
-      #- gitea-config:/source/gitea/config
-      #- radicale-data:/source/radicale/data
-      #- radicale-config:/source/radicale/config
+      - ddclient-data:/source/ddclient
+      - swag-data:/source/swag
+      - mariadb-data:/source/mariadb
+      - seafile-data:/source/seafile
+      - gitea-data:/source/gitea/data
+      - gitea-config:/source/gitea/config
+      - radicale-data:/source/radicale/data
+      - radicale-config:/source/radicale/config
       # Volumes containing borgmatic data
       - ${BASE_DIR?Base directory not specified!}/borgmatic/borgmatic.d:/etc/borgmatic.d/
       - ${BASE_DIR}/borgmatic/.ssh:/root/.ssh
@@ -75,7 +72,7 @@ services:
     image: seafileltd/seafile-mc:latest
     container_name: seafile
     volumes:
-      - ${BASE_DIR}/seafile-data:/shared   # Requested, specifies the path to Seafile data persistent store.
+      - seafile-data:/shared
     environment:
       - DB_HOST=mariadb
       - DB_ROOT_PASSWD=${DB_ROOT_PW?Database root password is missing!}  # Seafile will create user and database on its own
@@ -91,8 +88,8 @@ services:
     image: gitea/gitea:latest-rootless
     container_name: gitea
     volumes:
-      - ${BASE_DIR?Base directory not specified!}/gitea/data:/var/lib/gitea
-      - ${BASE_DIR?Base directory not specified!}/gitea/config:/etc/gitea
+      - gitea-data:/var/lib/gitea
+      - gitea-config:/etc/gitea
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     depends_on:
@@ -125,26 +122,26 @@ services:
       retries: 3
     restart: unless-stopped
     volumes:
-      - ${BASE_DIR}/radicale/data:/data
-      - ${BASE_DIR}/radicale/config:/config
+      - radicale-data:/data
+      - radicale-config:/config
     environment:
       - UID=${PUID?PUID is not known!}
       - GID=${PGID?PGID is not known!}
 
-#volumes:
-#  ddclient-data:
-#    external: false
-#  swag-data:
-#    external: false
-#  mariadb-data:
-#    external: false
-#  seafile-data:
-#    external: false
-#  gitea-data:
-#    external: false
-#  gitea-config:
-#    external: false
-#  radicale-data:
-#    external: false
-#  radicale-config:
-#    external: false
+volumes:
+  ddclient-data:
+    external: false
+  swag-data:
+    external: false
+  mariadb-data:
+    external: false
+  seafile-data:
+    external: false
+  gitea-data:
+    external: false
+  gitea-config:
+    external: false
+  radicale-data:
+    external: false
+  radicale-config:
+    external: false
