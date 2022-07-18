@@ -1,0 +1,64 @@
+location:
+    source_directories:
+        - /source
+
+    repositories:
+       #- user@backupserver:sourcehostname.borg
+
+    working_directory: /source
+
+# Repository storage options. See
+# https://borgbackup.readthedocs.io/en/stable/usage/create.html and
+# https://borgbackup.readthedocs.io/en/stable/usage/general.html for
+# details.
+storage:
+    # The standard output of this command is used to unlock the
+    # encryption key. Only use on repositories that were
+    # initialized with passcommand/repokey/keyfile encryption.
+    # Note that if both encryption_passcommand and
+    # encryption_passphrase are set, then encryption_passphrase
+    # takes precedence. Defaults to not set.
+    # encryption_passcommand: secret-tool lookup borg-repository repo-name
+
+    # Passphrase to unlock the encryption key with. Only use on
+    # repositories that were initialized with
+    # passphrase/repokey/keyfile encryption. Quote the value if it
+    # contains punctuation, so it parses correctly. And backslash
+    # any quote or backslash literals as well. Defaults to not
+    # set.
+    # encryption_passphrase: "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+
+    # Type of compression to use when creating archives. See
+    # http://borgbackup.readthedocs.io/en/stable/usage/create.html
+    # for details. Defaults to "lz4".
+    # compression: lz4
+
+    # Command to use instead of "ssh". This can be used to specify
+    # ssh options.  Defaults to not set.
+    ssh_command: ssh -i /root/.ssh/id_ed25519
+
+    # Name of the archive. Borg placeholders can be used. See the
+    # output of "borg help placeholders" for details. Defaults to
+    # "{hostname}-{now:%Y-%m-%dT%H:%M:%S.%f}". If you specify this
+    # option, consider also specifying a prefix in the retention
+    # and consistency sections to avoid accidental
+    # pruning/checking of archives with different archive name
+    # formats.
+    archive_name_format: 'borgmatic-docker-{now}'
+
+# Retention policy for how many backups to keep in each category. See
+# https://borgbackup.readthedocs.io/en/stable/usage/prune.html for
+# details. At least one of the "keep" options is required for pruning
+# to work. To skip pruning entirely, run "borgmatic create" or "check"
+# without the "prune" action. See borgmatic documentation for details.
+retention:
+    keep_daily: 31
+    keep_weekly: 12
+    keep_monthly: 12
+    keep_yearly: 10
+
+    # When pruning, only consider archive names starting with this
+    # prefix.  Borg placeholders can be used. See the output of
+    # "borg help placeholders" for details. Defaults to
+    # "{hostname}-". Use an empty value to disable the default.
+    prefix: borgmatic-docker-

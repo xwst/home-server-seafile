@@ -1,0 +1,54 @@
+---
+version: "2.1"
+services:
+  swag:
+    image: ghcr.io/linuxserver/swag
+    container_name: swag
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=${PUID?PUID is not known!}
+      - PGID=${PGID?PGID is not known!}
+      - TZ=${TIMEZONE?No timezone specified!}
+      - URL=${MYDOMAIN?No domain specified!}
+        # - SUBDOMAINS=www,
+        # - EXTRA_DOMAINS=
+      - VALIDATION=http
+      - STAGING=true
+    volumes:
+      - swag-data:/config
+    ports:
+      - 443:443
+      - 80:80
+    restart: unless-stopped
+  mariadb:
+    image: ghcr.io/linuxserver/mariadb
+    container_name: mariadb
+    environment:
+      - PUID=${PUID?PUID is not known!}
+      - PGID=${PGID?PGID is not known!}
+      - TZ=${TIMEZONE?No timezone specified!}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PW?Database root password is missing!}
+      - MYSQL_DATABASE=seafile
+      - MYSQL_USER=seafile_user
+      - MYSQL_PASSWORD=${DB_SEAFILE_PW?Database password for seafile user is missing!}
+    volumes:
+      - mariadb-data:/config
+    restart: unless-stopped
+  borgmatic:
+    image: b3vis/borgmatic
+    container_name: borgmatic
+    environment:
+      - TZ=${TIMEZONE?No timezone specified!}
+    volumes:
+      - swag-data:/source/swag-data:ro
+      - ${BASE_DIR?Base directory not specified!}/borgmatic/borgmatic.d:/etc/borgmatic.d/
+      - ${BASE_DIR}/borgmatic/.ssh:/root/.ssh
+      - ${BASE_DIR}/borgmatic/.config/borg:/root/.config/borg
+      - ${BASE_DIR}/borgmatic/.cache/borg:/root/.cache/borg
+
+volumes:
+  swag-data:
+    external: false
+  mariadb-data:
+    external: false
