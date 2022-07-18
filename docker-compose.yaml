@@ -1,5 +1,5 @@
 ---
-version: "2.1"
+version: "2.2"
 services:
   swag:
     image: ghcr.io/linuxserver/swag
@@ -91,6 +91,32 @@ services:
       - GITEA__database__USER=gitea_user
       - GITEA__database__PASSWD=${DB_GITEA_PASSWORD?gitea database password not specified!}
     restart: unless-stopped
+  radicale:
+    image: tomsquest/docker-radicale
+    container_name: radicale
+    ports:
+      - 5232:5232
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+      - CHOWN
+      - KILL
+    healthcheck:
+      test: curl -f http://radicale:5232 || exit 1
+      interval: 30s
+      retries: 3
+    restart: unless-stopped
+    volumes:
+      - ${BASE_DIR}/radicale/data:/data
+      - ${BASE_DIR}/radicale/config:/config
+    environment:
+      - UID=${PUID?PUID is not known!}
+      - GID=${PGID?PGID is not known!}
 
 #volumes:
 #  swag-data:

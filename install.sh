@@ -74,7 +74,11 @@ docker cp swag:/config/nginx/proxy-confs/gitea.subfolder.conf.sample \
 	  ./gitea.subfolder.conf.sample
 docker cp ./gitea.subfolder.conf.sample \
 	  swag:/config/nginx/proxy-confs/gitea.subfolder.conf
-rm -f ./gitea.subfolder.conf.sample
+docker cp ./radicale.subfolder.conf swag:/config/nginx/proxy-confs/
+curl -o radicale.conf https://raw.githubusercontent.com/tomsquest/docker-radicale/master/config
+docker cp radicale.conf radicale:/config/config
+rm -f ./gitea.subfolder.conf.sample ./radicale.conf
+
 
 echo "Creating default borgmatic configuration."
 docker exec borgmatic \
