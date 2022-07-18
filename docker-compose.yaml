@@ -1,6 +1,16 @@
 ---
 version: "2.2"
 services:
+  ddclient:
+    image: lscr.io/linuxserver/ddclient:latest
+    container_name: ddclient
+    environment:
+      - PUID=${PUID?PUID is not known!}
+      - PGID=${PGID?PGID is not known!}
+      - TZ=${TIMEZONE?No timezone specified!}
+    volumes:
+      - ${BASE_DIR?Base directory not specified!}/ddclient:/config
+      #- ddclient-data:/config
   swag:
     image: ghcr.io/linuxserver/swag
     container_name: swag
@@ -44,6 +54,7 @@ services:
       - TZ=${TIMEZONE?No timezone specified!}
     volumes:
       # Volumes to back up:
+      #- ddclient-data:/source/ddclient
       #- swag-data:/source/swag
       #- mariadb-data:/source/mariadb
       #- seafile-data:/source/seafile
@@ -122,6 +133,8 @@ services:
       - GID=${PGID?PGID is not known!}
 
 #volumes:
+#  ddclient-data:
+#    external: false
 #  swag-data:
 #    external: false
 #  mariadb-data:
